@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#101310" />
+    <title>Groove Guitar — 吉他节拍训练</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./src/chord-library.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="Groove Guitar 首页">
+          <span class="brand-mark">G<span>G</span></span>
+          <span class="brand-name">GROOVE<span>GUITAR</span></span>
+        </a>
+        <nav class="main-nav" aria-label="主导航">
+          <button id="navPractice" class="nav-button active" type="button">节拍训练</button>
+          <button id="navLibrary" class="nav-button" type="button">和弦知识库</button>
+        </nav>
+        <div class="top-note"><span class="status-dot"></span> 本地运行 · 无需注册</div>
+      </header>
+
+      <div id="practicePage">
+      <section class="hero">
+        <div>
+          <p class="eyebrow">YOUR DAILY PRACTICE COMPANION</p>
+          <h1>稳住节拍，<em>练出律动。</em></h1>
+          <p class="hero-copy">从慢速开始，让每一次拨弦都落在拍点上。</p>
+        </div>
+        <div class="hero-tag"><span>01</span> 节拍训练室</div>
+      </section>
+
+      <section class="practice-layout">
+        <article class="panel tempo-panel">
+          <div class="panel-head">
+            <div><span class="section-index">A / TEMPO</span><h2>节拍器</h2></div>
+            <div class="sound-controls">
+              <label class="sound-picker"><span>提示音</span><select id="clickSound" aria-label="节拍提示音音色"><option value="digital">电子滴音</option><option value="woodblock">木鱼</option><option value="mechanical">机械节拍器</option><option value="clave">响板</option><option value="bell">短铃</option><option value="rim">鼓边</option><option value="count-zh">明亮女声 · 中文数拍</option><option value="count-zh-rock">摇滚怒吼男声</option></select></label>
+              <button class="icon-button sound-toggle" id="clickMute" aria-label="静音节拍提示音" aria-pressed="false" title="静音节拍提示音">♫</button>
+            </div>
+          </div>
+          <div class="beat-lights" id="beatLights" aria-label="小节拍点"></div>
+          <div class="tempo-readout">
+            <button class="tempo-nudge" id="bpmDown" aria-label="降低速度">−</button>
+            <div class="tempo-value"><output id="bpmValue">90</output><span>BPM</span></div>
+            <button class="tempo-nudge" id="bpmUp" aria-label="提高速度">+</button>
+          </div>
+          <input id="bpmSlider" class="tempo-slider" type="range" min="40" max="220" value="90" aria-label="速度" />
+          <div class="tempo-limits"><span>40</span><span>220</span></div>
+          <div class="tempo-actions">
+            <button class="button button-primary" id="playButton"><span class="play-icon">▶</span><span>开始练习</span></button>
+            <button class="button button-outline" id="tapTempo">点按测速 <kbd>T</kbd></button>
+          </div>
+          <div class="settings-row">
+            <label>拍号<select id="meter"><option value="4">4 / 4</option><option value="3">3 / 4</option><option value="2">2 / 4</option><option value="5">5 / 4</option><option value="6">6 / 8</option><option value="7">7 / 8</option></select></label>
+            <label>细分<select id="subdivision"><option value="1">四分音符</option><option value="2">八分音符</option><option value="3">八分三连音</option><option value="4">十六分音符</option></select></label>
+            <label class="swing-control">Swing <span id="swingValue">50%</span><input id="swing" type="range" min="50" max="70" value="50" /></label>
+          </div>
+          <div class="mixer-row" aria-label="音量混音">
+            <label>节拍音量 <span id="clickVolumeValue">80%</span><input id="clickVolume" type="range" min="0" max="100" value="80" aria-label="节拍音量" /></label>
+            <label>人声音量 <span id="voiceVolumeValue">88%</span><input id="voiceVolume" type="range" min="0" max="100" value="88" aria-label="人声音量" /></label>
+            <label>鼓机音量 <span id="drumVolumeValue">78%</span><input id="drumVolume" type="range" min="0" max="100" value="78" aria-label="鼓机音量" /></label>
+          </div>
+          <div class="trainer-box">
+            <div class="trainer-copy"><span class="section-index">SPEED BUILDER</span><strong>渐进提速训练</strong><small id="trainerStatus">每 2 分钟自动加 5 BPM</small></div>
+            <div class="trainer-controls"><label>起始<input id="startBpm" type="number" min="40" max="220" value="70" aria-label="起始速度" /></label><span>→</span><label>目标<input id="targetBpm" type="number" min="40" max="220" value="120" aria-label="目标速度" /></label><button id="trainerToggle" class="mini-button">开始计划</button></div>
+          </div>
+        </article>
+
+        <article class="panel drum-panel">
+          <div class="panel-head">
+            <div><span class="section-index">B / GROOVE</span><h2>鼓机编排</h2></div>
+            <button class="icon-button" id="clearPattern" title="清空鼓点" aria-label="清空鼓点">↺</button>
+          </div>
+          <div class="pattern-toolbar"><label>律动预设<select id="preset"><option value="rock">经典摇滚</option><option value="pop">流行八拍</option><option value="blues">布鲁斯 Shuffle</option><option value="empty">空白节奏</option><option value="custom" disabled>自定义</option></select></label><span class="step-caption" id="stepCaption">16 STEP · 4 BEATS</span></div>
+          <div class="sequencer-scroll"><div class="sequencer" id="sequencer" aria-label="鼓机 16 步音序器"></div></div>
+          <div class="drum-legend"><span><i class="legend-kick"></i>底鼓</span><span><i class="legend-snare"></i>军鼓</span><span><i class="legend-hat"></i>踩镲</span><span class="legend-help">点击格子添加 / 移除鼓点</span></div>
+          <div class="drum-footer"><p>让鼓点带你进入律动，再把注意力放回右手。</p><button class="button button-outline drum-play" id="drumToggle"><span>▶</span> 播放鼓机</button></div>
+        </article>
+      </section>
+
+      <section class="bottom-strip"><span>练习建议</span><p>先选一个舒服的速度，连续稳定演奏 2 分钟，再提高 5 BPM。</p><span class="tip-icon">↗</span></section>
+      </div>
+
+      <section id="libraryPage" class="library-page" hidden>
+        <div class="library-heading">
+          <div><p class="eyebrow">CHORD ATLAS / GUITAR PRACTICE</p><h1>和弦知识库<span>。</span></h1><p class="hero-copy">按风格探索常用和弦进行，点选任意和弦，在指板上查看按法。</p></div>
+          <div class="library-count"><strong>14</strong><span>STYLE MODULES</span></div>
+        </div>
+        <div class="library-layout">
+          <aside class="genre-sidebar panel">
+            <span class="section-index">STYLE / 风格</span>
+            <div id="genreList" class="genre-list"></div>
+            <div class="library-note"><span>✳</span><p>每类和弦进行都是乐理练习模板；页面提供参考资料，不是特定歌曲逐段扒谱。</p></div>
+          </aside>
+          <section class="progression-column">
+            <div class="genre-title-row"><div><span class="section-index" id="genreEyebrow">MODULE 01</span><h2 id="genreTitle">日系摇滚</h2></div><span class="chord-count" id="chordCount"></span></div>
+            <p class="genre-description" id="genreDescription"></p>
+            <div id="progressionList" class="progression-list"></div>
+            <div id="songReferences" class="song-references"></div>
+          </section>
+          <aside class="fretboard-panel panel">
+            <div class="fretboard-heading">
+              <div class="guitar-stamp" aria-hidden="true"><svg viewBox="0 0 60 60"><path d="M35 7c-5 4-6 10-3 15l-7 8c-6-2-12 1-14 7-3 8 4 16 12 14 7-2 9-8 7-14l8-8c5 3 11 2 15-3 4-5 2-11-3-15l-4 6-5 1-2-4 2-5z" fill="#d09a58" stroke="#f1d6a7" stroke-width="1.4"/><path d="M29 30l14-14" stroke="#32251b" stroke-width="2"/><circle cx="25" cy="40" r="4" fill="#241e18"/></svg></div>
+              <div><span class="section-index">50s SINGLE-CUT INSPIRED</span><h2>指板视图</h2></div>
+              <span class="tuning-tag">标准调弦 E A D G B E</span>
+            </div>
+            <div class="selected-chord"><div><span class="selected-label">当前和弦</span><strong id="selectedChordName">F</strong></div><p id="selectedChordHint">食指横按 · 留意每根弦的按弦位置</p></div>
+            <div class="fretboard-wrap"><svg id="fretboardSvg" viewBox="0 0 1400 360" role="img" aria-label="50年代风格电吉他和弦按弦位置"></svg></div>
+            <div class="fretboard-legend"><span><i></i>按弦音</span><span>× 不弹　○ 空弦</span><span id="fretRange">品位 1–12</span></div>
+            <div class="voicing-browser"><div class="voicing-heading"><strong>同一和弦 · 不同把位</strong><span>点选把位，切换上方指板标记</span></div><div id="voicingList" class="voicing-list" aria-label="和弦不同把位"></div></div>
+            <div class="chord-detail"><span>指法</span><strong id="selectedFingering">x 3 3 2 1 1</strong><span>音名</span><strong id="selectedNotes">F · A · C</strong></div>
+            <div class="instrument-caption">琥珀色渐层 · 单切角琴身 · 梯形品记<br /><small>Gibson 50s 风格视觉原型</small></div>
+          </aside>
+        </div>
+      </section>
+      <footer>GROOVE GUITAR <span>·</span> 你的练习留在这台设备上</footer>
+    </main>
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>
