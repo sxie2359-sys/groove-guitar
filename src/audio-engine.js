@@ -49,6 +49,9 @@ export class AudioEngine {
       this.voiceBus.gain.value = this.voiceVolume;
       this.drumBus.gain.value = this.drumVolume;
       this.clickBus.connect(this.master); this.voiceBus.connect(this.master); this.drumBus.connect(this.master);
+      this.context.addEventListener('statechange', () => {
+        if (this.context.state === 'running' && (this.metronomePlaying || this.drumEnabled)) this.rebaseSchedule();
+      });
     }
     if (this.context.state === 'suspended') await this.context.resume();
     if (COUNT_VOICES[this.clickSound]) await this.loadChineseCounts(this.clickSound);
@@ -59,6 +62,21 @@ export class AudioEngine {
     if (this.clickBus) this.clickBus.gain.value = this.clickVolume;
     if (this.voiceBus) this.voiceBus.gain.value = this.voiceVolume;
     if (this.drumBus) this.drumBus.gain.value = this.drumVolume;
+  }
+  rebaseSchedule() {
+    if (!this.context || !this.timer) return;
+    const next = this.context.currentTime + 0.06;
+    this.cancelGroup('click');
+    this.cancelGroup('drum');
+    this.nextClickTime = next;
+    this.nextTime = next;
+  }
+  handleOutputDeviceChange() {
+    if (!this.context || !(this.metronomePlaying || this.drumEnabled)) return;
+    // Some browsers suspend or interrupt Web Audio while switching to a headset.
+    this.context.resume().then(() => this.rebaseSchedule()).catch(() => {
+      // Browsers may require a fresh user gesture; the next play interaction resumes it.
+    });
   }
   setMetronomePlaying(playing) {
     this.metronomePlaying = playing;
@@ -107,6 +125,13 @@ export class AudioEngine {
     this.scheduledTimers[group].forEach(id => window.clearTimeout(id));
     this.scheduledTimers[group].clear();
     if (group === 'click') this.countSources.clear();
+  }
+  cancelClickAudio() {
+    // Stop already scheduled oscillators and sample voices before changing timbre.
+    // Keep click UI timers intact so changing sound does not interrupt the visual beat.
+    this.scheduledNodes.click.forEach(node => { try { node.stop(); } catch {} });
+    this.scheduledNodes.click.clear();
+    this.countSources.clear();
   }
   scheduleAhead() {
     if (!this.context) return;

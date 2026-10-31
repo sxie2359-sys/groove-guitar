@@ -41,6 +41,9 @@ function resizePattern(pattern, length = stepCount()) {
 state.pattern = resizePattern(saved?.pattern || defaults.pattern);
 state.beatEnabled = Array.from({ length: 7 }, (_, index) => saved?.beatEnabled?.[index] ?? true);
 const engine = new AudioEngine({ onTick: showBeat, onDrumStep: showDrumStep });
+if (navigator.mediaDevices?.addEventListener) {
+  navigator.mediaDevices.addEventListener('devicechange', () => engine.handleOutputDeviceChange());
+}
 let tapTimes = [];
 let trainerTimer = null;
 let trainerState = null;
@@ -162,6 +165,7 @@ $('#swing').addEventListener('input', e => { state.swing = Number(e.target.value
 $('#clickMute').addEventListener('click', () => { state.clickEnabled = !state.clickEnabled; syncClickMute(); persist(); updateEngine(); });
 $('#clickSound').addEventListener('change', async (event) => {
   const previousSound = state.clickSound;
+  engine.cancelClickAudio();
   state.clickSound = event.target.value;
   persist(); updateEngine();
   try {
