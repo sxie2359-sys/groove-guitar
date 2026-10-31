@@ -5,7 +5,6 @@ export class AudioEngine {
     this.context = null;
     this.master = null;
     this.clickBus = null;
-    this.clickCompressor = null;
     this.voiceBus = null;
     this.drumBus = null;
     this.timer = null;
@@ -44,18 +43,14 @@ export class AudioEngine {
       this.master.gain.value = 0.75;
       this.master.connect(this.context.destination);
       this.clickBus = this.context.createGain();
-      this.clickCompressor = this.context.createDynamicsCompressor();
-      this.clickCompressor.threshold.value = -8;
-      this.clickCompressor.knee.value = 5;
-      this.clickCompressor.ratio.value = 8;
-      this.clickCompressor.attack.value = 0.003;
-      this.clickCompressor.release.value = 0.12;
       this.voiceBus = this.context.createGain();
       this.drumBus = this.context.createGain();
-      this.clickBus.gain.value = this.clickVolume * 2.8;
+      this.clickBus.gain.value = this.clickVolume * 2.5;
       this.voiceBus.gain.value = this.voiceVolume;
       this.drumBus.gain.value = this.drumVolume;
-      this.clickBus.connect(this.clickCompressor).connect(this.master);
+      // Instrument clicks get a direct, independent route to the active output.
+      // Keeping this out of the voice/master chain avoids a quiet compressed bus.
+      this.clickBus.connect(this.context.destination);
       this.voiceBus.connect(this.master); this.drumBus.connect(this.master);
       this.context.addEventListener('statechange', () => {
         if (this.context.state === 'running' && (this.metronomePlaying || this.drumEnabled)) this.rebaseSchedule();
@@ -68,7 +63,7 @@ export class AudioEngine {
   configure(values = {}) {
     Object.assign(this, values);
     this.stepsPerBar = Math.max(1, Number(this.beatsPerBar) || 4) * 4;
-    if (this.clickBus) this.clickBus.gain.value = this.clickVolume * 2.8;
+    if (this.clickBus) this.clickBus.gain.value = this.clickVolume * 2.5;
     if (this.voiceBus) this.voiceBus.gain.value = this.voiceVolume;
     if (this.drumBus) this.drumBus.gain.value = this.drumVolume;
   }
