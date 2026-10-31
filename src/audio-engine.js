@@ -52,6 +52,7 @@ export class AudioEngine {
       this.context.addEventListener('statechange', () => {
         if (this.context.state === 'running' && (this.metronomePlaying || this.drumEnabled)) this.rebaseSchedule();
       });
+      this.followDefaultOutput();
     }
     if (this.context.state === 'suspended') await this.context.resume();
     if (COUNT_VOICES[this.clickSound]) await this.loadChineseCounts(this.clickSound);
@@ -72,11 +73,21 @@ export class AudioEngine {
     this.nextTime = next;
   }
   handleOutputDeviceChange() {
-    if (!this.context || !(this.metronomePlaying || this.drumEnabled)) return;
-    // Some browsers suspend or interrupt Web Audio while switching to a headset.
-    this.context.resume().then(() => this.rebaseSchedule()).catch(() => {
+    if (!this.context) return;
+    // Rebind Web Audio to the OS default output after Bluetooth/headset routing changes.
+    Promise.resolve(this.followDefaultOutput()).then(() => {
+      if (this.metronomePlaying || this.drumEnabled) return this.context.resume();
+    }).then(() => this.rebaseSchedule()).catch(() => {
       // Browsers may require a fresh user gesture; the next play interaction resumes it.
     });
+  }
+  async followDefaultOutput() {
+    if (typeof this.context?.setSinkId !== 'function') return;
+    try {
+      await this.context.setSinkId('');
+    } catch {
+      // Unsupported or permission-restricted browsers keep their native default route.
+    }
   }
   setMetronomePlaying(playing) {
     this.metronomePlaying = playing;
